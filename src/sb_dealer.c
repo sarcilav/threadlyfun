@@ -19,7 +19,7 @@ int main(int argc, char * argv[])
       exit(1);
     }
   }
-  
+
   void * jugadores_ptr = realloc( jugadores, ( num_jugadores * sizeof(pthread_t) ));
   if(jugadores_ptr == NULL){
     fprintf(stderr , "%s" , jugadores_error);
@@ -52,7 +52,7 @@ int main(int argc, char * argv[])
     exit(1);
   }
   mtx_jugadores = (pthread_mutex_t*) mtx_jugadores_ptr;
-  
+
   void * cuenta_cartas_ptr = realloc(cuenta_cartas, (num_jugadores * sizeof(int) ));
   if(cuenta_cartas_ptr == NULL){
     fprintf(stderr,"%s",cuenta_error);
@@ -63,7 +63,7 @@ int main(int argc, char * argv[])
   }
   cuenta_cartas = (int *)cuenta_cartas_ptr;
 
-  iniciar_juego( arc4random() % num_jugadores );
+  iniciar_juego( random() % num_jugadores );
 
   while( !fin_del_juego );
   terminar_juego();
@@ -89,8 +89,8 @@ void c_baraja(int cartas[]) {
   for(l = 0; l < BARAJAS; ++l){
     for(i = 0; i < PINTAS; ++i){
       for(j = 0; j < CARTAS_EN_PINTA; ++j){
-	cartas[k] = j;
-	++k;
+        cartas[k] = j;
+        ++k;
       }
     }
   }
@@ -102,7 +102,7 @@ void c_baraja(int cartas[]) {
 void barajar_cartas(int cartas[],int num_cartas) {
   int i,j,aux;
   for( i = num_cartas -1; i > 0; --i){
-    j = ( arc4random()) % (i + 1);
+    j = ( random()) % (i + 1);
     aux = cartas[i];
     cartas[i] = cartas[j];
     cartas[j] = aux;
@@ -112,18 +112,18 @@ void barajar_cartas(int cartas[],int num_cartas) {
 
 /*
  */
-void repartir_cartas() {  
+void repartir_cartas() {
   int i,j,k;
   for(i = 0; i < CARTAS ;++i) cuenta_cartas[i] = 0;
 
   for(j = 0,k = 0; j < CARTAS; ++j){
     for(i = 0; i < num_jugadores; ++i){
       if(k < CARTAS){
-	cartas_jugadores[i][j] = cartas[k];
-	cartas[k] = NO_CARTA;
-	++cuenta_cartas[i];
+        cartas_jugadores[i][j] = cartas[k];
+        cartas[k] = NO_CARTA;
+        ++cuenta_cartas[i];
       }else{
-	cartas_jugadores[i][j] = NO_CARTA;
+        cartas_jugadores[i][j] = NO_CARTA;
       }
       ++k;
     }
@@ -150,7 +150,7 @@ void iniciar_juego(int jugador) {
   barajar_cartas( cartas , CARTAS  );
   repartir_cartas(  );
   imprimir_juego( 0 );
-  poner_jugadores();  
+  poner_jugadores();
   pthread_mutex_unlock( &mtx_jugadores[jugador] );
 }
 
@@ -175,11 +175,11 @@ void poner_jugadores() {
 
 /*
  */
-void quitar_jugadores(int index) { 
+void quitar_jugadores(int index) {
   int i = index;
   while( index )
     pthread_mutex_unlock( &mtx_jugadores[--index] );
-  
+
   void * estado_join;
   int join_index;
   for(join_index = 0 ; join_index < num_jugadores ; ++join_index){
@@ -196,10 +196,10 @@ void quitar_jugadores(int index) {
  */
 void liberar_recursos(){
   liberar_recursos_jugadores();
-  realloc( jugadores,0 ); //cool free(jugadores);
+  free(jugadores);//realloc( jugadores,0 ); //cool
   free( cartas_jugadores );
-  free( mtx_jugadores );
-  free( cuenta_cartas );
+  //free( mtx_jugadores );
+  // free( cuenta_cartas );
 }
 
 
@@ -214,7 +214,7 @@ void imprimir_juego(int ronda) {
 /*
  */
 void imprimir_juego_v(int ronda) {
-  
+
 }
 
 /*
@@ -226,15 +226,15 @@ void imprimir_juego_h(int ronda) {
     fprintf( stdout, "\n\t--------------------\n\n\n%s\n", ronda_final);
   else if (ronda == 0)
     fprintf( stdout, "%s\n",ronda_inicial);
-  else 
+  else
     fprintf( stdout, "\n\t--------------------\n\n\n%s %d\n", inicio_ronda, ronda);
-	
+
   for(i = 0; i < num_jugadores; ++i){
     for(j = 0; j < CARTAS; ++j){
       if(j == 0 ) fprintf(stdout,"%s #%3d  (%d)\n", jugador_string, i + 1 , cuenta_cartas[i]);
       karta = cartas_jugadores[i][j];
       if(karta == NO_CARTA){
-	break;
+        break;
       }
       fprintf(stdout,"%c  ",  valor_carta(karta));
     }
@@ -292,7 +292,7 @@ void terminar_juego() {
 void imprimir_resultados() {
 
   char ganan[52] = "", pierden[52] = "";
-  int count_g = 0 , count_p = 0 , max_p = 0 , i; 
+  int count_g = 0 , count_p = 0 , max_p = 0 , i;
   for(i = 0; i < num_jugadores; ++i){
     if( cuenta_cartas[i] == 0){
       ++count_g;
@@ -310,14 +310,14 @@ void imprimir_resultados() {
       sprintf(pierden,"%s %d",pierden, i + 1 );
     }
   }
-  
+
 
   if( count_g > 1 ){
     fprintf(stdout, "%s %s\n",empate,ganan);
   }else if( count_g == 1 ){
     fprintf(stdout, "%s %s\n",ganador,ganan);
   }
-  
+
   if( count_p > 1 ){
     fprintf(stdout, "%ses %s\n",pierden_msg,pierden);
   }else if( count_p == 1 ){
@@ -334,6 +334,6 @@ void imprimir_resultados() {
   cartas[i] ^= cartas[j];
 */
 
-/* 
+/*
    { puts("");int i;for(i=0; i<CARTAS ;++i) fprintf(stdout, "%d ",cartas[i]);puts("");}
 */

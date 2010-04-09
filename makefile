@@ -6,7 +6,7 @@
 SRC = src/sb_*.c
 HEA = src/sb_*.h
 CC = gcc
-CFLAGS = -semaphore -lpthread
+CFLAGS = -g -lpthread
 RM = rm -f
 BIN = dealer
 
